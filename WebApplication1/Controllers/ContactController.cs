@@ -1,6 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.Dtos;
+using WebApplication1.Mapping;
 using WebApplication1.Model;
 
 namespace WebApplication1.Controllers
@@ -10,64 +16,53 @@ namespace WebApplication1.Controllers
     public class ContactController : Controller
     {
         private ContactContext _data;
-
-        public ContactController(ContactContext data)
+        private readonly IMapper _mapper;
+        public ContactController(ContactContext data, IMapper mapper)
         {
             _data = data;
+            _mapper = mapper;
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetContact(long id)
+        public async Task<ContactDto> GetContact(long id,CancellationToken cancellationToken)
         {
-            var result = _data.Contacts.FirstOrDefault(x => x.Id == id);
-            if (result is null)
-            {
-                return NotFound();
-            }
-            return Ok(result);
+            var result = await _data.Contacts.FirstOrDefaultAsync(x => x.Id == id,cancellationToken);
+            return _mapper.Map<ContactDto>(result);
         }
         [HttpPost]
-        public IActionResult CreateNewContact(CreateContactDto input)
+        public async Task<IActionResult> CreateNewContact(CreateContactDto input,CancellationToken cancellationToken)
         {
             if (_data.Contacts.Any(x => x.Name == input.Name))
                 return BadRequest("تکراری است");
 
-            var contact = new Contact(input.Name, input.Phone);
+            var contact = _mapper.Map<Contact>(input);
             _data.Add(contact);
-            _data.SaveChanges();
+            await _data.SaveChangesAsync(cancellationToken);
             return Ok();
         }
 
         [HttpGet]
-        public IActionResult ListContact()
+        public async Task<List<ContactDto>> ListContact(CancellationToken cancellationToken)
         {
-            var list = _data.Contacts.ToList();
-            return Ok(list);
+            var list = await _data.Contacts.ToListAsync(cancellationToken);
+            return _mapper.Map<List<ContactDto>>(list);
         }
 
         [HttpDelete]
-        public IActionResult DeleteContact(int id)
+        public async Task<IActionResult> DeleteContact(int id)
         {
-            var contact = _data.Contacts.SingleOrDefault(x => x.Id == id);
+            var contact = await _data.Contacts.SingleOrDefaultAsync(x => x.Id == id);
             _data.Remove(contact);
-            _data.SaveChanges();
+            await _data.SaveChangesAsync();
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult EditContact(EditContactDto command)
+        public async Task<IActionResult> EditContact(EditContactDto command,CancellationToken cancellationToken)
         {
-            var contact = _data.Contacts.SingleOrDefault(x => x.Id == command.Id);
-
-
-            if (contact is not null)
-            {
-                contact.Name = command.Name;
-                contact.Phone = command.Name;
-                contact.Id = command.Id;
-            }
-
-            _data.SaveChanges();
+            var contact = await _data.Contacts.SingleOrDefaultAsync(x => x.Id == command.Id,cancellationToken);
+            _mapper.Map<Contact>(contact);
+            await _data.SaveChangesAsync(cancellationToken);
             return Ok(contact);
 
         }

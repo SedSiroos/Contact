@@ -9,5 +9,6 @@ namespace WebApplication1.Model
         }
 
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<ContactAdditionalData> ContactAdditionalData { get; set; }
     }
 }

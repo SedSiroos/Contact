@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Model;
 
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ContactContext))]
-    partial class ContactContextModelSnapshot : ModelSnapshot
+    [Migration("20211012143758_update")]
+    partial class update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,6 +30,9 @@ namespace WebApplication1.Migrations
 
                     b.Property<DateTimeOffset>("CreationDate")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Family")
                         .HasColumnType("nvarchar(max)");
@@ -50,33 +55,15 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<long>("ContactId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("ContactId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Data")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ContactId");
-
                     b.ToTable("ContactAdditionalData");
-                });
-
-            modelBuilder.Entity("WebApplication1.Model.ContactAdditionalData", b =>
-                {
-                    b.HasOne("WebApplication1.Model.Contact", "Contact")
-                        .WithMany("AdditionalData")
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contact");
-                });
-
-            modelBuilder.Entity("WebApplication1.Model.Contact", b =>
-                {
-                    b.Navigation("AdditionalData");
                 });
 #pragma warning restore 612, 618
         }

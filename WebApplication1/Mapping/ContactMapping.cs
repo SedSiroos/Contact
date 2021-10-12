@@ -14,6 +14,8 @@ namespace WebApplication1.Mapping
                 //    opt => opt.MapFrom(x => x.CreationDate.ToPersianDate()));
 
             CreateMap<CreateContactDto, Contact>();
+
+            CreateMap<CreateAdditional, ContactAdditionalData>();
         }
     }
 }

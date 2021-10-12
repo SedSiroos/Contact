@@ -24,13 +24,13 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ContactDto> GetContact(long id,CancellationToken cancellationToken)
+        public async Task<ContactDto> GetContact(long id, CancellationToken cancellationToken)
         {
-            var result = await _data.Contacts.FirstOrDefaultAsync(x => x.Id == id,cancellationToken);
+            var result = await _data.Contacts.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
             return _mapper.Map<ContactDto>(result);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateNewContact(CreateContactDto input,CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateNewContact(CreateContactDto input, CancellationToken cancellationToken)
         {
             if (_data.Contacts.Any(x => x.Name == input.Name))
                 return BadRequest("تکراری است");
@@ -58,13 +58,22 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> EditContact(EditContactDto command,CancellationToken cancellationToken)
+        public async Task<IActionResult> EditContact(EditContactDto command, CancellationToken cancellationToken)
         {
-            var contact = await _data.Contacts.SingleOrDefaultAsync(x => x.Id == command.Id,cancellationToken);
+            var contact = await _data.Contacts.SingleOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
             _mapper.Map<Contact>(contact);
             await _data.SaveChangesAsync(cancellationToken);
             return Ok(contact);
 
+        }
+
+        [HttpPost("Additional")]
+        public async Task<IActionResult> PostAddional(CreateAdditional input,CancellationToken cancellationToken)
+        {
+            var result = _mapper.Map<ContactAdditionalData>(input);
+            _data.Add(result);
+            await _data.SaveChangesAsync(cancellationToken);
+            return Ok();
         }
     }
 }
